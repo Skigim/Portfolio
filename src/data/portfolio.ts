@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: "Alex Morgan",
+  name: "Taylor Harris",
   title: "AI-Assisted Developer",
   tagline: "Building intelligent systems by focusing on methods and logic — not just syntax.",
   email: "alex@example.com",
