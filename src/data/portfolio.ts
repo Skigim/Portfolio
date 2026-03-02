@@ -73,6 +73,20 @@ export const caseStudies = [
     accent: "violet",
     year: "2026",
   },
+  {
+    id: "lifeguard-discord-bot",
+    title: "Lifeguard: Dashboard-less Community Bot",
+    summary:
+      "Engineered a modular, database-backed Discord bot that centralizes community management, structured feedback workflows, and gaming integrations natively within Discord, eliminating the need for external web dashboards.",
+    challenge:
+      "Gaming communities often rely on fragmented, single-purpose bots that require leaving Discord for external dashboards, creating friction for sever management, handling peer feedback tasks, and wrangling cross-time zone collaboration.",
+    approach:
+      "Built a highly modular architecture in Python using discord.py and Firebase/Firestore, allowing server admins to toggle robust features—like a multi-step content review wizard, auto-cleaning voice lobbies, and game market APIs—entirely through interactive native Discord slash commands and UI components.",
+    outcome: "Centralized multiple external bot functions into one seamless tool · Enabled robust in-Discord community content review pipelines · Provided seamless timezone coordination for global members via a robust impersonation engine",
+    tags: ["Python", "discord.py", "Firebase", "Bot Architecture", "UX Design"],
+    accent: "cyan",
+    year: "2025",
+  },
 ];
 
 export const skills = [
