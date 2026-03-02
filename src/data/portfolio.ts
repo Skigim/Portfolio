@@ -60,58 +60,16 @@ export const approaches = [
 
 export const caseStudies = [
   {
-    id: "intelligent-triage",
-    title: "Intelligent Support Triage",
-    summary:
-      "Reduced mean time-to-resolution by 62% by routing support tickets to the right team using a multi-label classification pipeline trained on historical ticket data.",
-    challenge:
-      "A growing SaaS company was drowning in mis-routed support tickets, causing SLA breaches and customer churn.",
-    approach:
-      "Mapped the ticket lifecycle, identified 14 distinct routing categories, then designed a lightweight transformer fine-tune pipeline. Used active learning to prioritise labelling effort and staged roll-out with a confidence threshold to maintain human oversight.",
-    outcome: "62% reduction in MTTR · 89% routing accuracy · 0 changes to existing CRM workflow",
-    tags: ["NLP", "Classification", "Active Learning", "Pipeline Design"],
-    accent: "violet",
-    year: "2024",
-  },
-  {
-    id: "data-quality-loop",
-    title: "Automated Data Quality Loop",
-    summary:
-      "Designed a self-healing data pipeline that detected schema drift, quarantined anomalous records, and alerted owners — eliminating weekly manual audits.",
-    challenge:
-      "An analytics team spent 30% of sprint capacity on ad-hoc data fixes caused by undetected upstream schema changes.",
-    approach:
-      "Implemented a schema registry with contract testing at ingestion points. Built a statistical anomaly detector (z-score + IQR ensemble) that tagged records in real-time and generated a weekly digest summarising drift trends.",
-    outcome: "Zero missed schema changes post-launch · 30% sprint capacity reclaimed · Digest adopted by 3 adjacent teams",
-    tags: ["Data Engineering", "Anomaly Detection", "Contract Testing", "Observability"],
-    accent: "cyan",
-    year: "2024",
-  },
-  {
-    id: "rag-knowledge-base",
-    title: "Context-Aware Knowledge Base",
-    summary:
-      "Built a Retrieval-Augmented Generation system that let a 200-person operations team query internal documentation in plain language with source citations.",
-    challenge:
-      "Institutional knowledge was locked in 4,000+ unstructured documents across three platforms, creating information asymmetry and onboarding delays.",
-    approach:
-      "Chunked and embedded documents using a hybrid BM25 + dense retrieval strategy, then layered a re-ranking step to maximise passage relevance before generation. Designed a citation UI that built user trust gradually.",
-    outcome: "Avg. query answered in <8 s · Onboarding time cut by 40% · 94% user satisfaction score",
-    tags: ["RAG", "Vector Search", "Re-ranking", "UX Design"],
-    accent: "emerald",
-    year: "2023",
-  },
-  {
     id: "openfrontio-contributions",
     title: "Open Source Contributions: OpenFrontIO",
     summary:
-      "Delivered a series of high-impact pull requests for OpenFrontIO, addressing core rendering performance, implementing new community features, and resolving critical UI state bugs.",
+      "Delivered a series of high-impact pull requests for OpenFrontIO, establishing core architectural patterns for mobile, fixing rendering performance, and streamlining the competitive player experience.",
     challenge:
-      "The game client suffered from rendering performance drops with non-square sprites, lacked a way for the community to play custom maps in lobbies, and had post-game end screens that would sometimes fail to render statistics correctly.",
+      "The game client suffered from architectural fragmentation with ad hoc environment detection, rendering performance drops with non-square sprites, and UX friction forcing players to manually navigate back to the menu to requeue for ranked matches.",
     approach:
-      "For performance (PR #3325), corrected the drawImage dimensions and canvas clearance boundaries for non-square scaling. To support the community (PR #3320), engineered the lobby system to allow uploading and playing custom map files. Finally, for UI stability (PR #3121), resolved the post-game telemetry state issues that were causing blank end screens.",
-    outcome: "Improved client framerates · Enabled a new ecosystem of custom community maps · Ensured reliable post-game telemetry display",
-    tags: ["Open Source", "Game Dev", "TypeScript", "Performance"],
+      "To establish a scalable architecture for mobile (PR #3325), consolidated platform, environment, and viewport detection into a single tested utility, replacing duplicated regex checks across the client. For rendering performance (PR #3320), corrected drawImage dimensions and canvas clearance boundaries for non-square unit scaling. To improve player retention and UX (PR #3121), implemented a 'Play Again' button in the post-game modal for Ranked 1v1s, seamlessly routing players back into the matchmaking queue via URL parameters, complete with state management and unit tests.",
+    outcome: "Laid a stable foundation for mobile milestones · Improved client rendering pipeline · Streamlined the ranked competitive loop for players",
+    tags: ["Open Source", "Game Dev", "TypeScript", "React", "Architecture"],
     accent: "violet",
     year: "2024",
   },
