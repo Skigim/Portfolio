@@ -60,6 +60,183 @@ export const approaches = [
 
 export const caseStudies = [
   {
+    id: "dhhs-sharepoint-sync",
+    title: "DHHS SharePoint Data Sync & Concurrency Automator",
+    summary:
+      "Built a VBA automation tool for the Department of Health and Human Services that eliminated a daily workflow bottleneck — replacing error-prone manual data entry into a shared SharePoint workbook with a safe, smart, fully-automated sync script.",
+    challenge:
+      "My team processed Medicaid applications and tracked work daily in local Excel workbooks. Pushing that data to a shared master file on SharePoint required manual copy-paste, was riddled with duplicate entries when workers forgot to check for existing records, and constantly failed with file-lock errors when multiple team members tried to update the master file at the same time.",
+    approach:
+      "I wrote a VBA macro that prompts the worker for the target date, then safely checks out the SharePoint file using Workbooks.CanCheckOut before opening it — preventing collisions with other users. A duplicate-detection loop scans every existing row on the target sheet, matching on both MC number and date, and skips exact duplicates while intelligently overwriting only the 'Action Taken' column if the status has changed. After pushing all records, a Safe Check-In Protocol verifies the file can be returned (wbTarget.CanCheckIn), commits the changes with an audit comment, and falls back to a local save with a clear user alert if SharePoint refuses the check-in. The script also dynamically routes data to the correct monthly tab across both workbooks using the date the worker supplies at runtime.",
+    outcome:
+      "Eliminated hours of daily manual data entry · Removed duplicate records from the master tracker · Bypassed SharePoint file-lock errors that previously blocked the whole team",
+    tags: ["VBA", "Microsoft Excel", "SharePoint", "Automation", "Concurrency"],
+    accent: "emerald",
+    year: "2024",
+    codeSnippet: `Sub PushNonMagiDataToSharePoint()
+    ' 1. Hardcoded Worker Name Constant
+    Const WorkerName As String = "Taylor Harris"
+    
+    Dim wbSource As Workbook, wbTarget As Workbook
+    Dim wsSource As Worksheet, wsTarget As Worksheet
+    Dim targetURL As String, searchDate As String, sheetMonth As String
+    Dim targetRow As Long, sourceRow As Long, chkRow As Long, foundRow As Long
+    Dim foundCell As Range
+    Dim formattedDate As String, mcValue As String
+    Dim recordsAdded As Integer, recordsUpdated As Integer, recordsSkipped As Integer
+    
+    ' Initialize counters for the final summary
+    recordsAdded = 0
+    recordsUpdated = 0
+    recordsSkipped = 0
+    Set wbSource = ThisWorkbook
+    
+    ' 2. Prompt for the specific date header to push
+    searchDate = InputBox("Enter the date header exactly as it appears in Column A (e.g., 3-Mar):", "Select Date to Push", Format(Date, "d-Mmm"))
+    If searchDate = "" Then Exit Sub ' Cancel if the user closes the box
+    
+    ' Figure out the abbreviated month name (e.g., "Mar") and lock in date format
+    On Error Resume Next
+    sheetMonth = Format(CDate(searchDate), "mmm")
+    formattedDate = Format(CDate(searchDate), "m/d/yyyy") 
+    On Error GoTo 0
+    
+    If sheetMonth = "" Then
+        MsgBox "Couldn't determine the month. Make sure you enter a valid date format.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Set up Source (Sender) Sheet
+    On Error Resume Next
+    Set wsSource = wbSource.Sheets(sheetMonth)
+    On Error GoTo 0
+    
+    If wsSource Is Nothing Then
+        MsgBox "Could not find a tab named '" & sheetMonth & "' in your sender workbook.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Find the date header block
+    Set foundCell = wsSource.Columns("A").Find(What:=searchDate, LookIn:=xlValues, LookAt:=xlWhole)
+    If foundCell Is Nothing Then
+        MsgBox "Could not find the date header: " & searchDate & " on the " & sheetMonth & " sheet.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' 3. The SharePoint URL for the shared master tracking file
+    targetURL = "https://[org].sharepoint.com/sites/[Team]/Shared%20Documents/NM%20Initial%20Daily%20tracking.xlsx"
+    
+    Application.ScreenUpdating = False
+    
+    ' 4. Verify the file can be checked out from the server
+    If Workbooks.CanCheckOut(targetURL) Then
+        
+        ' Check out and open the Recipient Workbook
+        Workbooks.CheckOut targetURL
+        Set wbTarget = Workbooks.Open(targetURL)
+        
+        ' Set up Target (Recipient) Sheet
+        On Error Resume Next
+        Set wsTarget = wbTarget.Sheets(sheetMonth)
+        On Error GoTo 0
+        
+        If wsTarget Is Nothing Then
+            MsgBox "Could not find a tab named '" & sheetMonth & "' in the recipient workbook.", vbExclamation
+            wbTarget.CheckIn SaveChanges:=False
+            Application.ScreenUpdating = True
+            Exit Sub
+        End If
+        
+        ' Find the next empty row, ensuring it starts at row 11 or lower
+        targetRow = wsTarget.Cells(wsTarget.Rows.Count, "A").End(xlUp).Row + 1
+        If targetRow < 11 Then targetRow = 11
+        
+        ' 5. Loop and Push/Update Data
+        sourceRow = foundCell.Row + 1
+        
+        Do While sourceRow <= wsSource.Cells(wsSource.Rows.Count, "A").End(xlUp).Row
+            ' Stop logic: Hitting the next day's header
+            If wsSource.Cells(sourceRow, "A").Value <> "" And wsSource.Cells(sourceRow, "B").Value = "" Then
+                Exit Do
+            End If
+            
+            ' Push/Update logic
+            If wsSource.Cells(sourceRow, "A").Value <> "" And wsSource.Cells(sourceRow, "B").Value <> "" Then
+                
+                mcValue = wsSource.Cells(sourceRow, "A").Value
+                foundRow = 0 ' Reset for each record
+                
+                ' DUPLICATE CHECKER: Scan the target sheet for this MC on this Date
+                For chkRow = 11 To targetRow - 1
+                    If wsTarget.Cells(chkRow, "C").Value = mcValue And _
+                       Format(wsTarget.Cells(chkRow, "B").Value, "m/d/yyyy") = formattedDate Then
+                        foundRow = chkRow
+                        Exit For
+                    End If
+                Next chkRow
+                
+                If foundRow = 0 Then
+                    ' It's new! Map and push the data.
+                    wsTarget.Cells(targetRow, "A").Value = WorkerName                                       
+                    wsTarget.Cells(targetRow, "B").Value = formattedDate            
+                    wsTarget.Cells(targetRow, "C").Value = mcValue             
+                    wsTarget.Cells(targetRow, "D").Value = wsSource.Cells(sourceRow, "B").Value             
+                    wsTarget.Cells(targetRow, "E").Value = wsSource.Cells(sourceRow, "C").Value             
+                    wsTarget.Cells(targetRow, "G").Value = wsSource.Cells(sourceRow, "E").Value             
+                    
+                    targetRow = targetRow + 1 
+                    recordsAdded = recordsAdded + 1
+                Else
+                    ' It exists. Check if Action Taken (Col E in source, Col G in target) changed.
+                    If wsTarget.Cells(foundRow, "G").Value <> wsSource.Cells(sourceRow, "E").Value Then
+                        ' Overwrite the old Action Taken
+                        wsTarget.Cells(foundRow, "G").Value = wsSource.Cells(sourceRow, "E").Value
+                        recordsUpdated = recordsUpdated + 1
+                    Else
+                        ' Exact match, nothing to change. Skip it.
+                        recordsSkipped = recordsSkipped + 1
+                    End If
+                End If
+                
+            End If
+            
+            sourceRow = sourceRow + 1
+        Loop
+        
+        ' 6. Safe Check-In Protocol
+        wbTarget.Activate ' Force the recipient file to be the active window
+        DoEvents          ' Give the network a microsecond to catch up
+        
+        ' Verify Excel recognizes the lock and is permitted to check it in
+        If wbTarget.CanCheckIn Then
+            ' Check in WITH saving (this prevents the server conflict)
+            wbTarget.CheckIn SaveChanges:=True, Comments:="Pushed Non-MAGI data. Added: " & recordsAdded & ", Updated: " & recordsUpdated
+            
+            Application.ScreenUpdating = True
+            MsgBox "Success! Tracking sheet updated and checked back in safely." & vbCrLf & vbCrLf & _
+                   "New Records Added: " & recordsAdded & vbCrLf & _
+                   "Existing Records Updated: " & recordsUpdated & vbCrLf & _
+                   "Duplicates Skipped: " & recordsSkipped, vbInformation
+        Else
+            ' Fallback if SharePoint is being stubborn: Save locally, LEAVE OPEN, and alert user
+            wbTarget.Save 
+            Application.ScreenUpdating = True
+            MsgBox "Data was successfully pushed and SAVED, but SharePoint wouldn't release the lock automatically." & vbCrLf & vbCrLf & _
+                   "The file has been left open for you. Please manually click 'Check In' from the Excel ribbon." & vbCrLf & vbCrLf & _
+                   "New Records Added: " & recordsAdded & vbCrLf & _
+                   "Existing Records Updated: " & recordsUpdated & vbCrLf & _
+                   "Duplicates Skipped: " & recordsSkipped, vbExclamation
+        End If
+        
+    Else
+        ' If a coworker has it locked at the very beginning, stop and alert
+        Application.ScreenUpdating = True
+        MsgBox "The tracking sheet is currently checked out by another user. Please try again in a few minutes.", vbExclamation
+    End If
+    
+End Sub`,
+  },
+  {
     id: "openfrontio-contributions",
     title: "Open Source Contributions: OpenFrontIO",
     summary:

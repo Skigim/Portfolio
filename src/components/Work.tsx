@@ -2,7 +2,9 @@
 
 import { useState, useRef } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { Tag, ChevronDown, ChevronUp } from "lucide-react";
+import { Tag, ChevronDown, ChevronUp, Code2 } from "lucide-react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { caseStudies } from "@/data/portfolio";
 
 const accentMap: Record<string, { border: string; badge: string; glow: string; text: string; bar: string }> = {
@@ -37,6 +39,7 @@ function CaseStudyCard({
   index: number;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [codeExpanded, setCodeExpanded] = useState(false);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const accent = accentMap[study.accent] ?? accentMap.violet;
@@ -111,6 +114,44 @@ function CaseStudyCard({
                   </h4>
                   <p className="text-slate-300 text-sm leading-relaxed">{study.approach}</p>
                 </div>
+                {study.codeSnippet && (
+                  <div>
+                    <button
+                      onClick={() => setCodeExpanded(!codeExpanded)}
+                      className={`flex items-center gap-2 text-sm font-medium ${accent.text} hover:opacity-80 transition-opacity group`}
+                    >
+                      <Code2 size={14} />
+                      <span>{codeExpanded ? "Hide" : "View"} source code</span>
+                      {codeExpanded ? (
+                        <ChevronUp size={13} />
+                      ) : (
+                        <ChevronDown size={13} />
+                      )}
+                    </button>
+                    <AnimatePresence>
+                      {codeExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="overflow-hidden"
+                        >
+                          <div className={`mt-3 rounded-xl border ${accent.border} overflow-hidden text-xs`}>
+                            <SyntaxHighlighter
+                              language="vbnet"
+                              style={vscDarkPlus}
+                              customStyle={{ margin: 0, borderRadius: 0, maxHeight: "480px", fontSize: "0.72rem" }}
+                              showLineNumbers
+                            >
+                              {study.codeSnippet}
+                            </SyntaxHighlighter>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
