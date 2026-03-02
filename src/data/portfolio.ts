@@ -101,6 +101,20 @@ export const caseStudies = [
     accent: "emerald",
     year: "2023",
   },
+  {
+    id: "openfrontio-contributions",
+    title: "Open Source Contributions: OpenFrontIO",
+    summary:
+      "Delivered a series of high-impact pull requests for OpenFrontIO, addressing core rendering performance, implementing new community features, and resolving critical UI state bugs.",
+    challenge:
+      "The game client suffered from rendering performance drops with non-square sprites, lacked a way for the community to play custom maps in lobbies, and had post-game end screens that would sometimes fail to render statistics correctly.",
+    approach:
+      "For performance (PR #3325), corrected the drawImage dimensions and canvas clearance boundaries for non-square scaling. To support the community (PR #3320), engineered the lobby system to allow uploading and playing custom map files. Finally, for UI stability (PR #3121), resolved the post-game telemetry state issues that were causing blank end screens.",
+    outcome: "Improved client framerates · Enabled a new ecosystem of custom community maps · Ensured reliable post-game telemetry display",
+    tags: ["Open Source", "Game Dev", "TypeScript", "Performance"],
+    accent: "violet",
+    year: "2024",
+  },
 ];
 
 export const skills = [
