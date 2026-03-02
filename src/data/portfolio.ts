@@ -71,7 +71,7 @@ export const caseStudies = [
     outcome: "Laid a stable foundation for mobile milestones · Improved client rendering pipeline · Streamlined the ranked competitive loop for players",
     tags: ["Open Source", "Game Dev", "TypeScript", "React", "Architecture"],
     accent: "violet",
-    year: "2024",
+    year: "2026",
   },
 ];
 
